@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>APlayer Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="index.css"/>
+</head>
+<body>
+   
+    <div class="allDetail">
+		<h2 class="title">linux服务器中Jenkins集成gitGradle持续构建Springboot项目</h2>
+		<div class="message">
+			<div class="message_top">
+				<img src="img/code.png" class="code"/>
+			    <span class="userName">高天龙</span>
+			</div>			
+			<p class="message_bottom">
+				<span>2017-11-20</span>
+				阅读：<span>31</span>
+			</p>
+		</div>
+		<div class="content">			
+			<p class="pText">学习外语，能听懂笑话说明你的水平真的很高，因为要听懂笑话不仅要懂语言，还要理解他的背景，学习外语，能听懂笑话说明你的水平真的很高，因为要听懂笑话不仅要懂语言，还要理解他的背景</p>
+			<div id="player1" class="aplayer"></div>
+             			          		    			
+			<p class="pText">学习外语，能听懂笑话说明你的水平真的很高，因为要听懂笑话不仅要懂语言，还要理解他的背景，学习外语，能听懂笑话说明你的水平真的很高，因为要听懂笑话不仅要懂语言，还要理解他的背景</p>
+		    
+		    <div id="player2" class="aplayer"></div>
+																			
+		</div>
+	</div>
+	<div class="bottom_control" >
+		<div class="audio-wrapper">			   
+			     <div class="audio-left" id="progressY">
+			     	<img class="controlImgStop" src="img/zanting.png" onclick="start()">
+			     	<img class="controlImgStart" src="img/pause.png" style="display: none;" onclick="stop()">
+			     </div>			     
+			    <div class="audio-right">
+			        <p style="max-width: 536px;"></p>
+			        <div class="audio-time" style="width:20%">
+			        	<span class="audio-length-current">00:00</span>			        	
+			        </div>
+			        <div class="progress-bar-bg" style="width:55%">
+			        	<span id="progressDot" class="progressDot"></span>
+			            <div class="progress-bar" ></div>
+			        </div>    
+			        <div class="totalTime">
+			        	<span class="cut"></span><span class="audio-length-total">00:00</span>
+			        </div>			        
+			    </div>
+		</div>
+	</div>     
+        
+    <script src="jquery-1.9.1.js"></script>
+    <script src="radialIndicator.js"></script>
+    <script src="../dist/APlayer.min.js"></script>
+    <!--<script src="demo.js"></script>-->
+    <script type="text/javascript">
+    	$(function(){
+			$('#progressY').radialIndicator({ //加载圆形进度条
+		        barColor: '#3e87e8',
+		        barWidth: 4,
+		        initValue: 0,
+		        roundCorner : true,
+		        percentage: true,
+		        displayNumber: false
+		}).data('radialIndicator');;
+		
+		
+		});
+    	var ap1 = new APlayer({
+	    element: document.getElementById('player1'),
+	    narrow: false,
+	    autoplay: false,
+	    showlrc: false,
+	    mutex: true,
+	    theme: '#3e87e8',
+	    preload: 'metadata',
+	    mode: 'order',
+	    music: {
+	        title: 'test',
+	        author: 'test',
+	        url: '11.mp3',
+	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
+	    }
+	});
+
+	var ap2 = new APlayer({
+	    element: document.getElementById('player2'),
+	    narrow: false,
+	    autoplay: false,
+	    showlrc: false,
+	    mutex: true,
+	    theme: '#3e87e8',
+	    preload: 'metadata',
+	    mode: 'order',
+	    music: {
+	        title: 'Preparation',
+	        author: 'Hans Zimmer/Richard Harvey',
+	        url: 'http://devtest.qiniudn.com/Preparation.mp3',
+	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
+	    }
+	});
+	
+	$(".aplayer-time").find(".aplayer-icon-mode").hide();
+	
+		  
+          ap1.on("play",function(){	
+          	
+		  	$(".controlImgStart").show();
+		  	$(".controlImgStop").hide();
+		  	ap2.audio.currentTime = 0;
+		  	
+		  	$(".aplayer-ptime").eq(1).html('00:00');
+		  	$(".aplayer-played").eq(1).width(0);
+		  });
+		 
+		  ap1.on("pause",function(){	
+		  	if(ap2.audio.paused){
+		  		$(".controlImgStop").show();
+		  		$(".controlImgStart").hide();
+		  	}
+		    else{
+		    	return;
+		    }
+		  	
+		  });
+		  
+		  ap2.on("play",function(){	         			  			  				  	
+		  	$(".controlImgStart").show();
+		  	$(".controlImgStop").hide();	
+		  	ap1.audio.currentTime = 0;
+		  	
+		  	$(".aplayer-ptime").eq(0).html('00:00');
+		  	$(".aplayer-played").eq(0).width(0);
+		  	
+		  });
+		  
+		  ap2.on("pause",function(){	
+		  	if(ap1.audio.paused){
+		  		$(".controlImgStop").show();
+		  		$(".controlImgStart").hide();
+		  	}
+		    else{
+		    	return;
+		    }		  		 
+		  });
+		  
+		  
+		  ap1.on("playing",function(){
+		  	$(".audio-length-total").html($(".aplayer-dtime").eq(0).html());
+		  	$(".audio-length-current").html(transTime(ap1.audio.currentTime));
+		  	
+		  	
+		  	var value = ap1.audio.currentTime / ap1.audio.duration;		  	
+		  	$(".bottom_control").find('.progress-bar').css('width', value * 100 + '%');
+	        $(".bottom_control").find('.progressDot').css('left', value * 100 + '%');
+	        var radObj = $("#progressY").data('radialIndicator');
+	        radObj.animate(value * 100);//更新圆形进度条
+		  });
+		  
+		  ap2.on("playing",function(){
+		  	$(".audio-length-total").html($(".aplayer-dtime").eq(1).html());
+		  	$(".audio-length-current").html(transTime(ap2.audio.currentTime));
+		  	
+		  	var value = ap2.audio.currentTime / ap2.audio.duration;
+		  	
+		  	$(".bottom_control").find('.progress-bar').css('width', value * 100 + '%');
+	        $(".bottom_control").find('.progressDot').css('left', value * 100 + '%');
+	        var radObj = $("#progressY").data('radialIndicator');
+	        radObj.animate(value * 100);//更新圆形进度条
+		  });
+		  //最下方菜单控制音频的播放暂停
+		  function stop(){ 
+		  	
+		  	$(".aplayer-icon-pause").click();
+		    $(".controlImgStart").hide();
+		  	$(".controlImgStop").show();
+		  }
+		  function start(){ 
+		  	$(".aplayer-ptime").each(function(){
+		  		if($(this).html()==$(".audio-length-current").html()){
+		  			$(this).parents(".aplayer").find(".aplayer-icon-play").click();
+		  		}
+		  	});
+		  
+		    $(".controlImgStop").hide();
+		  	$(".controlImgStart").show();
+		  }
+		  // 底部点击进度条跳到指定点播放
+		$('.progress-bar-bg').click(function (e) {					
+			// 只有音乐开始播放后才可以调节，已经播放过但暂停了的也可以
+			var pgsWidth = $(this).width();
+			var rate = e.offsetX / pgsWidth;
+			
+			$(".aplayer-ptime").each(function(){
+		  		if($(this).html()==$(".audio-length-current").html()){
+		  			var index =$(".aplayer-ptime").index(this);
+		  			index = index+1;
+		  			var ap = eval("ap"+index);
+		  			
+		  			ap.audio.currentTime = ap.audio.duration * rate;
+					var value = ap.audio.currentTime / ap.audio.duration;
+									  	
+				  	$(".bottom_control").find('.progress-bar').css('width', value * 100 + '%');
+			        $(".bottom_control").find('.progressDot').css('left', value * 100 + '%');
+			        var radObj = $("#progressY").data('radialIndicator');
+	                radObj.animate(value * 100);//更新圆形进度条
+		  		}
+		  	});
+			
+			
+			
+			
+			   	    
+		});
+		//转换音频时长显示
+		function transTime(time) {
+			var duration = parseInt(time);
+			var minute = parseInt(duration/60);
+			var sec = duration%60+'';
+			var isM0 = ':';
+			if(minute == 0){
+				minute = '00';
+			}else if(minute < 10 ){
+				minute = '0'+minute;
+			}
+		    if(sec.length == 1){
+				sec = '0'+sec;
+			}
+			return minute+isM0+sec
+		}
+		
+		//屏幕下滑和上滑时控制菜单的显示和隐藏
+		var windowHeight = $(window).height(),
+		$body = $("body");
+		// console.log($(window).height());
+		// console.log($('body').height());
+		$body.css("height", windowHeight);  
+		$("body").on("touchstart", function(e) {
+		    //e.preventDefault();
+			startX = e.originalEvent.changedTouches[0].pageX,
+		    startY = e.originalEvent.changedTouches[0].pageY;
+		});
+		$("body").on("touchmove", function(e) {
+		    //e.preventDefault();
+			moveEndX = e.originalEvent.changedTouches[0].pageX,
+		    moveEndY = e.originalEvent.changedTouches[0].pageY,
+			X = moveEndX - startX,
+			Y = moveEndY - startY;	      
+			if ( Math.abs(X) > Math.abs(Y) && X > 0 ) {
+				//alert("left 2 right");
+		    }
+			else if ( Math.abs(X) > Math.abs(Y) && X < 0 ) {
+				//alert("right 2 left");
+		    }
+			else if ( Math.abs(Y) > Math.abs(X) && Y > 0) {
+				//alert("top 2 bottom");
+				$(".bottom_control").hide();	        
+			}
+		    else if ( Math.abs(Y) > Math.abs(X) && Y < 0 ) {
+				$(".bottom_control").show();  
+				//alert("bottom 2 top");
+			}
+		    else{
+				//alert("just touch");
+			}
+		});
+		var startX, x, aboveX = 0;
+        document.getElementById("progressDot").addEventListener("touchstart", touchStart1, false);
+		document.getElementById("progressDot").addEventListener("touchmove", touchMove1, false);
+		document.getElementById("progressDot").addEventListener("touchend", touchEnd1, false);
+		var drag1 = document.getElementById("progressDot");
+    //控制菜单部分的touchstart,touchmove,touchend事件函数
+	function touchStart1(e) { 
+		e.preventDefault();
+		var touch = e.touches[0];
+		startX = touch.pageX;
+	}
+	function touchMove1(e) { //滑动       
+		e.preventDefault();
+		var touch = e.touches[0];
+		x = touch.pageX - startX; //滑动的距离   	
+		var X = aboveX + x;
+		if(X<0){
+			X = 0;
+		}
+		else if(X > $('.progress-bar-bg').width()){
+			X = $('.progress-bar-bg').width();
+		}
+		drag1.style.left = X + "px"; 		     
+	}
+	function touchEnd1(e) { //手指离开屏幕
+	    e.preventDefault();
+		aboveX = parseInt(drag1.style.left);
+	    var touch = e.touches[0];
+		var dragPaddingLeft = drag1.style.left;
+		var change = dragPaddingLeft.replace("px", "");
+		numDragpaddingLeft = parseInt(change);
+		
+		$(".aplayer-ptime").each(function(){
+		  		if($(this).html()==$(".audio-length-current").html()){
+		  			var index =$(".aplayer-ptime").index(this);
+		  			index = index+1;
+		  			var ap = eval("ap"+index);
+		  			
+		  			ap.audio.currentTime = ap.audio.duration * (numDragpaddingLeft /$('.progress-bar-bg').width());
+					var value = ap.audio.currentTime / ap.audio.duration;
+									  	
+				  	$(".bottom_control").find('.progress-bar').css('width', value * 100 + '%');
+			        $(".bottom_control").find('.progressDot').css('left', value * 100 + '%');
+			        var radObj = $("#progressY").data('radialIndicator');
+	                radObj.animate(value * 100);//更新圆形进度条
+		  		}
+		  });         
+	}
+    </script>
+   
+</body>
+</html>
